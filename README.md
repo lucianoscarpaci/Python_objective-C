@@ -7,9 +7,10 @@ This repository contains a collection of iOS apps made with Python. The apps are
 Libraries are Rubicon-ObjC and objc_util, which can be installed in Pythonista with some modifications.
 
 ## Apps
-- [**Text App**](Text%20App) - A simple text app that will alert you on the screen.
+- [**Battery App**](Battery%20App) - A Battery app that shows the current charging status for your iPhone.
 <img src="./gifs/battery_gif.gif">
 
 
-- [**Battery App**](Battery%20App) - A Battery app that shows the current charging status for your iPhone.
+
+- [**Text App**](Text%20App) - A simple text app that will alert you on the screen.
 <img src="./gifs/Alert_gif.gif">
