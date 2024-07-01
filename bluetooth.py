@@ -1,3 +1,4 @@
+'''
 from objc_util import *
 
 # Load the CoreBluetooth framework
@@ -41,3 +42,90 @@ if cb_manager.state() == 0:
     print('Connected to Heyday Wireless Earbuds')
 else:
     print("Bluetooth is not turned on")
+
+import cb
+
+class HeydayCentralManagerDelegate (object):
+    def __init__(self):
+        self.peripheral = None
+
+    def did_discover_peripheral(self, p):
+        print('Discovered peripheral:', p.name)
+        if p.name and 'HEYDAY' in p.name and not self.peripheral:
+            self.peripheral = p
+            cb.connect_peripheral(p)
+
+    def did_connect_peripheral(self, p):
+        print('Connected:', p.name)
+        print('Discovering services...')
+        p.discover_services()
+
+    def did_fail_to_connect_peripheral(self, p, error):
+        print('Failed to connect: %s' % (error,))
+
+    def did_disconnect_peripheral(self, p, error):
+        print('Disconnected, error: %s' % (error,))
+        self.peripheral = None
+
+delegate = HeydayCentralManagerDelegate()
+cb.set_central_delegate(delegate)
+cb.scan_for_peripherals()
+'''
+import cb
+
+class HeydayCentralManagerDelegate (object):
+    def __init__(self):
+        self.peripheral = None
+
+    def did_discover_peripheral(self, p):
+        print('Discovered peripheral:', p.name)
+        if p.name and '110033_DFBC' in p.name and not self.peripheral:
+            self.peripheral = p
+            cb.stop_scan()
+            print('Connecting to peripheral:', p.name)
+            cb.connect_peripheral(p)
+
+    def did_connect_peripheral(self, p):
+        print('Connected:', p.name)
+        print('Discovering services...')
+        p.discover_services()
+
+    def did_fail_to_connect_peripheral(self, p, error):
+        print('Failed to connect: %s' % (error,))
+        self.peripheral = None
+        cb.scan_for_peripherals()
+
+    def did_disconnect_peripheral(self, p, error):
+        print('Disconnected, error: %s' % (error,))
+        self.peripheral = None
+        cb.scan_for_peripherals()
+
+    def did_discover_services(self, p, error):
+        if error:
+            print('Error discovering services: %s' % (error,))
+            return
+        for s in p.services:
+            print('Discovered service:', s.uuid)
+            p.discover_characteristics(s)
+
+    def did_discover_characteristics(self, s, error):
+        if error:
+            print('Error discovering characteristics: %s' % (error,))
+            return
+        for c in s.characteristics:
+            print('Discovered characteristic:', c.uuid)
+
+delegate = HeydayCentralManagerDelegate()
+cb.set_central_delegate(delegate)
+
+# Ensure Bluetooth is powered on
+if cb.get_state() != cb.CM_STATE_POWERED_ON:
+    print("Bluetooth is not powered on")
+else:
+    print("Scanning for peripherals...")
+    cb.scan_for_peripherals()
+
+# Keep the script running
+import time
+while True:
+    time.sleep(1)
